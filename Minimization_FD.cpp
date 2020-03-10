@@ -48,7 +48,7 @@ int main()
 
 	RemoveExtraneousRHS(S,m);
 
-	printf("\n");
+	printf("The minimal cover is:\n");
 	for(int i=0;i<m;++i)
 	{
 		cout << S[i].a<<" "<<S[i].b<<"\n";
@@ -214,6 +214,10 @@ void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	
 	
 	// Generate Subsets of the temp_closure and run GenerateClosure again. Run untill no more elements are added to the closure set.
 	int len = temp_closure.size();
+	int new_len = temp_closure.size();
+	do
+	{
+	len = temp_closure.size();
 	char new_substr[len];
 	new_substr[len] = '\0';
 	for(int i=0;i<len;++i)
@@ -239,6 +243,8 @@ void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	
 
 	RemoveDuplicates(temp_closure);
 	sort(temp_closure.begin(),temp_closure.end());
+	new_len = temp_closure.size();
+	}while(len<new_len);
 
 }
 
