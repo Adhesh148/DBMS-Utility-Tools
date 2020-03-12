@@ -1,6 +1,14 @@
 /******************************************
 * AUTHOR : AdheshR*
 ******************************************/
+
+/*
+BUGS FOUND:
+	1. aa -> b is not working		// allow only distinct inputs.
+	2. sort the inputs   (Done)
+	3. Repeat the LHS and RHS function once more.	(Had a justification)
+*/
+
 #include <bits/stdc++.h>
 #include <iostream>
 #include <vector>
@@ -24,6 +32,7 @@ void RemoveDuplicates(vector <char> &temp_closure);
 int DoesContain(vector<char> &temp_closure,char b[]);
 void RemoveExtraneousLHS(vector<struct FD> &S,int& m);
 void RemoveExtraneousRHS(vector<struct FD> &S,int& m);
+void Sort(char a[],int n);
 
 struct FD
 {
@@ -39,7 +48,11 @@ int main()
 	vector<struct FD> S(MAX); //declaring m FD structures 
 
 	for(int i=0;i<m;++i)
+	{
 		scanf("%s -> %s",S[i].a,S[i].b);
+		Sort(S[i].a,strlen(S[i].a));
+		Sort(S[i].b,strlen(S[i].b));
+	}
 
 	Decompose(S,m);
 
@@ -48,6 +61,12 @@ int main()
 	RemoveExtraneousLHS(S,m);
 
 	RemoveExtraneousRHS(S,m);
+
+	// Have to Run the RemoveExtraneous LHS and RHS twice because ----- ??
+
+	// RemoveExtraneousLHS(S,m);
+
+	// RemoveExtraneousRHS(S,m);
 
 	printf("The minimal cover is:\n");
 	for(int i=0;i<m;++i)
@@ -171,8 +190,6 @@ void RemoveExtraneousRHS(vector<struct FD> &S,int& m) // Remove Transitive Relat
 		int new_m = m-1;
 
 		findClosure(P,new_m,str,closure);
-
-		//cout << "YESS/n";
 
 		if(DoesContain(closure,S[i].b) == 1)
 		{
@@ -317,6 +334,23 @@ int DoesContain(vector<char> &temp_closure,char b[])
 	return 0;
 }
 
+void Sort(char a[],int n)		// Sorted using Bubble Sort - Have to replace with merge sort
+{
+	char temp;
+	for(int i=0;i<n-1;++i)
+	{
+		for(int j=0;j<n-i-1;++j)
+		{
+			if(a[j]>a[j+1])
+			{
+				temp = a[j];
+				a[j] = a[j+1];
+				a[j+1] = temp;
+			}
+		}
+	}
+
+}
 
 // COMMENTS
 /*
