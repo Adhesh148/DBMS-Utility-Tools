@@ -4,8 +4,9 @@
 #include <bits/stdc++.h>
 #include <iostream>
 #include <vector>
-#include <string>
+#include <algorithm>
 #include <cmath>
+#include <string>
 using namespace std;
 #define LL long long
 #define MAX 100
@@ -85,8 +86,9 @@ void RemoveRedundant(vector<struct FD> &S,int& m)
 	{
 		for(int j=i+1;j<m;++j)
 		{
-			if(strcmp(S[i].a,S[j].a) == 0 && strcmp(S[i].b,S[j].b) ==0)
+			if(strcmp(S[i].a,S[j].a) == 0 && strcmp(S[i].b,S[j].b) ==0 && S[i].a[0]!='\0')
 			{
+				//cout << S[i].a<<"~~"<<S[i].b<<"\n";
 				S.erase(S.begin()+j);
 				++cnt;
 			}
@@ -119,7 +121,9 @@ void RemoveExtraneousLHS(vector<struct FD> &S,int& m)
 				removed_char[1] = '\0';
 				str[len-1] = '\0';
 				vector<char> closure;
+
 				closure.clear();
+
 
 				findClosure(S,m,str,closure); // find the closure of str
 
@@ -168,6 +172,8 @@ void RemoveExtraneousRHS(vector<struct FD> &S,int& m) // Remove Transitive Relat
 
 		findClosure(P,new_m,str,closure);
 
+		//cout << "YESS/n";
+
 		if(DoesContain(closure,S[i].b) == 1)
 		{
 
@@ -183,13 +189,17 @@ void RemoveExtraneousRHS(vector<struct FD> &S,int& m) // Remove Transitive Relat
 void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	// Find closure(a)
 {
 	//Generate all possible subss of the Attribute excluding empty set
+
 	
 	int n = strlen(a),b[MAX];
 	fill(b,b+n,0);
 	vector<vector<char>> subs(MAX);
 	
 	k=0;
+
 	Subset(a,b,0,n,subs);
+
+
 
 	char str[MAX];
 
@@ -197,15 +207,20 @@ void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	
 	for(int i=0;i<subs[pow(2,n)-1].size();++i)
 		temp_closure.push_back(subs[pow(2,n)-1][i]);
 
+
+
 	for(int l =1;l<pow(2,n);++l)
 	{
 		for(int j=0;j<subs[l].size();++j)
 			str[j] =  subs[l][j];
 		str[subs[l].size()] = '\0';
 
+		//cout << "String: "<<str<<"\n";
 		GenerateClosure(S,m,str,temp_closure);
+		//cout << "YES\n";
 
 	}
+
 
 	RemoveDuplicates(temp_closure);
 	sort(temp_closure.begin(),temp_closure.end());
@@ -213,6 +228,7 @@ void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	
 	
 	
 	// Generate Subsets of the temp_closure and run GenerateClosure again. Run untill no more elements are added to the closure set.
+	int iter =0;
 	int len = temp_closure.size();
 	int new_len = temp_closure.size();
 	do
@@ -254,8 +270,9 @@ void GenerateClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closu
 	{
 		if(strcmp(S[i].a,a) == 0)
 		{
+			//cout << "YES\n";
 			temp_closure.push_back(S[i].b[0]);
-			GenerateClosure(S,m,S[i].b,temp_closure);
+			//GenerateClosure(S,m,S[i].b,temp_closure);
 		}
 	}
 }
