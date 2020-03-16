@@ -12,8 +12,26 @@ CE -> A
 CE -> G
 
 
+FOR CANDIDATE KEYS:
+
 5 3
 A -> C
 C -> BD
 D -> A
+
+5 2
+A -> C
+CD -> B
+
+5 3
+A -> BE
+C -> BE
+B -> D
+
+
+6 4
+A -> B
+B -> D
+C -> D
+E -> F
 
