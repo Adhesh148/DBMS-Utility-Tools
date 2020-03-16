@@ -2,11 +2,14 @@
 * AUTHOR : AdheshR*
 ******************************************/
 
-/*
+/*	
 BUGS FOUND:
 	1. aa -> b is not working		// allow only distinct inputs.
 	2. sort the inputs   (Done)
 	3. Repeat the LHS and RHS function once more.	(Had a justification)
+MODIFICATIONS NEEDED:
+	1. Sort function is BubbleSort for convienence. Should change to nlogn sort.
+	2. Have to add another function called findMinimal and include Decompose, RemoveRedundant etc within it.
 */
 
 #include <bits/stdc++.h>
@@ -33,6 +36,9 @@ int DoesContain(vector<char> &temp_closure,char b[]);
 void RemoveExtraneousLHS(vector<struct FD> &S,int& m);
 void RemoveExtraneousRHS(vector<struct FD> &S,int& m);
 void Sort(char a[],int n);
+int isIn(char a[],char b);
+
+void findCandidateKey(vector<struct FD> S,int m,int n);
 
 struct FD
 {
@@ -42,10 +48,10 @@ struct FD
 
 int main()
 {
-	int n,m;	// n is the number of elements in the relation, m is the number of FDS.
+	int n,m;							// n is the number of elements in the relation, m is the number of FDS.
 	cin>>n>>m;
 
-	vector<struct FD> S(MAX); //declaring m FD structures 
+	vector<struct FD> S(MAX); 			//declaring m FD structures 
 
 	for(int i=0;i<m;++i)
 	{
@@ -75,6 +81,8 @@ int main()
 	}
 
 	//RemoveRedundant(S,m);
+
+	findCandidateKey(S,m,n);
 	
 }
 
@@ -107,7 +115,6 @@ void RemoveRedundant(vector<struct FD> &S,int& m)
 		{
 			if(strcmp(S[i].a,S[j].a) == 0 && strcmp(S[i].b,S[j].b) ==0 && S[i].a[0]!='\0')
 			{
-				//cout << S[i].a<<"~~"<<S[i].b<<"\n";
 				S.erase(S.begin()+j);
 				++cnt;
 			}
@@ -157,7 +164,6 @@ void RemoveExtraneousLHS(vector<struct FD> &S,int& m)
 			}
 		}
 	}
-
 }
 
 void RemoveExtraneousRHS(vector<struct FD> &S,int& m) // Remove Transitive Relations
@@ -200,14 +206,12 @@ void RemoveExtraneousRHS(vector<struct FD> &S,int& m) // Remove Transitive Relat
 		else
 			++i;
 	}
-	
 }
 
 void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	// Find closure(a)
 {
 	//Generate all possible subss of the Attribute excluding empty set
 
-	
 	int n = strlen(a),b[MAX];
 	fill(b,b+n,0);
 	vector<vector<char>> subs(MAX);
@@ -216,14 +220,11 @@ void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	
 
 	Subset(a,b,0,n,subs);
 
-
-
 	char str[MAX];
 
 	//Push all elements in character to temp_closure. Trivial Closures
 	for(int i=0;i<subs[pow(2,n)-1].size();++i)
 		temp_closure.push_back(subs[pow(2,n)-1][i]);
-
 
 
 	for(int l =1;l<pow(2,n);++l)
@@ -232,17 +233,11 @@ void findClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closure)	
 			str[j] =  subs[l][j];
 		str[subs[l].size()] = '\0';
 
-		//cout << "String: "<<str<<"\n";
 		GenerateClosure(S,m,str,temp_closure);
-		//cout << "YES\n";
-
 	}
-
 
 	RemoveDuplicates(temp_closure);
 	sort(temp_closure.begin(),temp_closure.end());
-
-	
 	
 	// Generate Subsets of the temp_closure and run GenerateClosure again. Run untill no more elements are added to the closure set.
 	int iter =0;
@@ -286,11 +281,7 @@ void GenerateClosure(vector<struct FD> S,int m,char a[],vector<char> &temp_closu
 	for(int i=0;i<m;++i)
 	{
 		if(strcmp(S[i].a,a) == 0)
-		{
-			//cout << "YES\n";
 			temp_closure.push_back(S[i].b[0]);
-			//GenerateClosure(S,m,S[i].b,temp_closure);
-		}
 	}
 }
 
@@ -325,12 +316,20 @@ void Subset(char a[],int b[],int i,int n,vector<vector<char>> &subs)
 	}
 }
 
-int DoesContain(vector<char> &temp_closure,char b[])
+int DoesContain(vector<char> &temp_closure,char b[])	// returns 1 if contains and 0 otherwise
 {
 	for(int i=0;i<temp_closure.size();++i)
 		if(b[0] == temp_closure[i])
 			return 1;
 
+	return 0;
+}
+
+int isIn(char a[],char b)
+{
+	for(int i=0;i<strlen(a);++i)
+		if(b == a[i])
+			return 1;
 	return 0;
 }
 
@@ -349,8 +348,135 @@ void Sort(char a[],int n)		// Sorted using Bubble Sort - Have to replace with me
 			}
 		}
 	}
-
 }
+
+void findCandidateKey(vector<struct FD> S,int m,int n)
+{
+	// get RHS Attributes
+	vector<char> rhsAttributes;
+	rhsAttributes.clear();
+	for(int i=0;i<m;++i)
+		rhsAttributes.push_back(S[i].b[0]);
+
+	RemoveDuplicates(rhsAttributes);	// Remove duplicates from the vector
+
+	char ckAttributes[MAX];	// contains attributes that must always be included in all CKs.
+	int len_ckA=0;
+	char check[2];	// single length character array. Helps to find non rhsAttributes
+	check[1] = '\0';
+	for(int i=0;i<n;++i)
+	{
+		check[0] = 'A'+i;
+		if(DoesContain(rhsAttributes,check) == 0)
+			ckAttributes[len_ckA++] = check[0];
+	}
+	ckAttributes[len_ckA] = '\0';
+
+
+	//Compute closure of ckAttributes. if closure = R => ckAttributes are the only candidate key. else ....
+	vector<char> closure;
+	closure.clear();
+
+	findClosure(S,m,ckAttributes,closure);
+
+	if(closure.size() == n)			// closure contains the n elements of the relation Rs
+		cout << "CANDIDATE KEY: "<<ckAttributes<<"\n";
+	else
+	{
+		//get LHS Attributes
+		vector<char> lhsAttributes;
+		lhsAttributes.clear();
+		for(int i=0;i<m;++i)
+		{
+			for(int j=0;j<strlen(S[i].a);++j)
+				lhsAttributes.push_back(S[i].a[j]);
+		}
+
+		RemoveDuplicates(lhsAttributes);
+
+		int len_notCkA =0,len_ckSet=0;
+		char notCkAttributes[MAX]; 					// contains attributes that cannot be part of the CK.
+		char ckSet[MAX];							// contains R - (notCK) // these attributes can be a part of CK
+		for(int i=0;i<n;++i)
+		{
+			check[0] = 'A'+i;
+			if(DoesContain(lhsAttributes,check) == 0)
+				notCkAttributes[len_notCkA++] = check[0];
+			else
+				if(isIn(ckAttributes,check[0]) == 0)
+					ckSet[len_ckSet++] = check[0];
+		}
+		ckSet[len_ckSet] = '\0';
+		notCkAttributes[len_notCkA++] = '\0';
+
+		// Generate all subsets of ckSet
+		int b[MAX];
+		fill(b,b+len_ckSet,0);
+		vector<vector<char>> ckSet_subs(MAX);
+		k=0;
+		Subset(ckSet,b,0,len_ckSet,ckSet_subs);
+
+		// After Generating the Subset. Check if (subset+ckAttributes) is SuperKey ??
+		sortSubsets(ckSet_subs,pow(2,len_ckSet)-1);
+		for(int i=1;i<pow(2,len_ckSet);++i)
+		{
+			for(int j=0;j<ckSet_subs[i].size();++j)
+				cout << ckSet_subs[i][j];
+			cout << "\n";
+		}
+		/*
+		vector<vector<char>> superKey(MAX);
+		char tempSuperKey[MAX];
+		int len_tempSuperKey=0,len_superKey=0;
+		
+		for(int i=1;i<pow(2,len_ckSet);++i)
+		{
+			vector<char> temp_closure;
+			temp_closure.clear();
+			len_tempSuperKey =0;
+			for(int j=0;j<ckSet_subs[i].size();++j)
+				tempSuperKey[len_tempSuperKey++] = ckSet_subs[i][j];
+			for(int j=0;j<strlen(ckAttributes);++j)
+				tempSuperKey[len_tempSuperKey++] = ckAttributes[j];
+
+			tempSuperKey[len_tempSuperKey] = '\0';
+			Sort(tempSuperKey,len_tempSuperKey);
+			findClosure(S,m,tempSuperKey,temp_closure);	
+
+			if(temp_closure.size() ==n)
+			{
+				for(int j=0;j<strlen(tempSuperKey);++j)
+					superKey[len_superKey].push_back(tempSuperKey[j]);
+				++len_superKey;
+			}
+		}
+
+		for(int i=0;i<len_superKey;++i)
+		{
+			for(int j=0;j<superKey[i].size();++j)
+				cout << superKey[i][j];
+			cout << "\n";
+		}
+		*/
+
+
+	}
+
+
+	//vector<vector<char>> ck(MAX); 	// stores candidate keys
+}
+
+void sortSubsets(vector<vector<char>> v,int n)
+{
+	for(int i=0;i<n;++i)
+	{
+		for(int j=0;j<n;++j)
+		{
+			
+		}
+	}
+}
+
 
 // COMMENTS
 /*

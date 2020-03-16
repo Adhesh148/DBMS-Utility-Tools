@@ -10,3 +10,10 @@ CG -> B
 CG -> D
 CE -> A
 CE -> G
+
+
+5 3
+A -> C
+C -> BD
+D -> A
+
