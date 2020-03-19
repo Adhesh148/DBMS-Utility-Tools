@@ -60,15 +60,6 @@ void findMinimalCover(vector<struct FD> &S,int& m)
 	//RemoveRedundant(S,m);
 }
 
-
-
-
-
-
-
-
-
-
 // COMMENTS
 /*
 

@@ -1,5 +1,12 @@
-6 4
-A B
-B D
-C D
-E F
+7 11
+AB C
+C A
+BC D
+ACD B
+D E
+D G
+BE C
+CG B
+CG D
+CE A
+CE G
